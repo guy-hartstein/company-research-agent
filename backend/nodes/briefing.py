@@ -1,6 +1,8 @@
-import google.generativeai as genai
+#import google.generativeai as genai
 from typing import Dict, Any, Union, List
 import os
+from ibm_watsonx_ai import APIClient, Credentials
+from ibm_watsonx_ai.foundation_models import ModelInference
 import logging
 from ..classes import ResearchState
 import asyncio
@@ -12,13 +14,44 @@ class Briefing:
     
     def __init__(self) -> None:
         self.max_doc_length = 8000  # Maximum document content length
-        self.gemini_key = os.getenv("GEMINI_API_KEY")
-        if not self.gemini_key:
-            raise ValueError("GEMINI_API_KEY environment variable is not set")
+        # self.gemini_key = os.getenv("GEMINI_API_KEY")
+        # if not self.gemini_key:
+        #     raise ValueError("GEMINI_API_KEY environment variable is not set")
         
-        # Configure Gemini
-        genai.configure(api_key=self.gemini_key)
-        self.gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+        # # Configure Gemini
+        # genai.configure(api_key=self.gemini_key)
+        # self.gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        # Configure WatsonX
+        self.watsonx_api_key = os.getenv("WATSONX_API_KEY")
+        self.watsonx_project_id = os.getenv("WATSONX_PROJECT_ID")
+        self.watsonx_url = os.getenv("WATSONX_URL")
+        
+        if not self.watsonx_api_key or not self.watsonx_project_id:
+            raise ValueError("WATSONX_API_KEY and WATSONX_PROJECT_ID environment variables must be set")
+        
+        # Initialize WatsonX client
+        self.watsonx_credentials = Credentials(
+                url=os.getenv("WATSONX_URL"),
+                api_key=os.getenv("WATSONX_API_KEY"),
+            )
+        
+        self.watsonx_client = APIClient(self.watsonx_credentials)
+        
+        # Initialize WatsonX model - adjust model_id as needed
+        watsonx_params = {
+            "decoding_method": "greedy",
+            "max_new_tokens": 1024,
+            "min_new_tokens": 0,
+            "temperature": 0.7
+        }
+        
+        self.watsonx_model = ModelInference(
+            model_id="ibm/granite-3-8b-instruct",
+            api_client=self.watsonx_client,
+            project_id=self.watsonx_project_id,
+            params = watsonx_params
+        )
 
     async def generate_category_briefing(
         self, docs: Union[Dict[str, Any], List[Dict[str, Any]]], 
@@ -179,7 +212,8 @@ Analyze the following documents and extract key information. Provide only the br
         
         try:
             logger.info("Sending prompt to LLM")
-            response = self.gemini_model.generate_content(prompt)
+            #response = self.gemini_model.generate_content(prompt)
+            response = self.watsonx_model.generate_text(prompt)
             content = response.text.strip()
             if not content:
                 logger.error(f"Empty response from LLM for {category} briefing")
