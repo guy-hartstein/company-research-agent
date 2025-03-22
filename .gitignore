@@ -27,3 +27,4 @@ node_modules/
 Procfile
 .vercel
 .ebextensions
+/venv

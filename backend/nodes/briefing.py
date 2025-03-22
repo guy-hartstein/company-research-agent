@@ -13,7 +13,7 @@ class Briefing:
     """Creates briefings for each research category and updates the ResearchState."""
     
     def __init__(self) -> None:
-        self.max_doc_length = 8000  # Maximum document content length
+        self.max_doc_length = 6000  # Maximum document content length
         # self.gemini_key = os.getenv("GEMINI_API_KEY")
         # if not self.gemini_key:
         #     raise ValueError("GEMINI_API_KEY environment variable is not set")
@@ -41,7 +41,7 @@ class Briefing:
         # Initialize WatsonX model - adjust model_id as needed
         watsonx_params = {
             "decoding_method": "greedy",
-            "max_new_tokens": 1024,
+            #"max_new_tokens": 1024,
             "min_new_tokens": 0,
             "temperature": 0.7
         }
@@ -214,7 +214,7 @@ Analyze the following documents and extract key information. Provide only the br
             logger.info("Sending prompt to LLM")
             #response = self.gemini_model.generate_content(prompt)
             response = self.watsonx_model.generate_text(prompt)
-            content = response.text.strip()
+            content = response.strip()
             if not content:
                 logger.error(f"Empty response from LLM for {category} briefing")
                 return {'content': ''}
