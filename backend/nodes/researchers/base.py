@@ -1,7 +1,9 @@
 import os
 from datetime import datetime
-from openai import AsyncOpenAI
+#from openai import AsyncOpenAI
 from tavily import AsyncTavilyClient
+from ibm_watsonx_ai import APIClient, Credentials
+from ibm_watsonx_ai.foundation_models import ModelInference
 from ...classes import ResearchState
 from typing import Dict, Any, List
 import logging
@@ -13,13 +15,46 @@ logger = logging.getLogger(__name__)
 class BaseResearcher:
     def __init__(self):
         tavily_key = os.getenv("TAVILY_API_KEY")
-        openai_key = os.getenv("OPENAI_API_KEY")
+
+        # Configure WatsonX
+        self.watsonx_api_key = os.getenv("WATSONX_API_KEY")
+        self.watsonx_project_id = os.getenv("WATSONX_PROJECT_ID")
+        self.watsonx_url = os.getenv("WATSONX_URL")
         
-        if not tavily_key or not openai_key:
-            raise ValueError("Missing API keys")
+        if not self.watsonx_api_key or not self.watsonx_project_id:
+            raise ValueError("WATSONX_API_KEY and WATSONX_PROJECT_ID environment variables must be set")
+        
+        if not tavily_key:
+            raise ValueError("Missing Tavily API keys")
+        # Initialize WatsonX client
+        self.watsonx_credentials = Credentials(
+                url=os.getenv("WATSONX_URL"),
+                api_key=os.getenv("WATSONX_API_KEY"),
+            )
+        
+        self.watsonx_client = APIClient(self.watsonx_credentials)
+        
+        # Initialize WatsonX model - adjust model_id as needed
+        watsonx_params = {
+            "decoding_method": "greedy",
+            "max_new_tokens": 1024,
+            "min_new_tokens": 0,
+            "temperature": 0.7
+        }
+        
+        self.watsonx_model = ModelInference(
+            model_id="ibm/granite-3-8b-instruct",
+            api_client=self.watsonx_client,
+            project_id=self.watsonx_project_id,
+            params = watsonx_params
+        )
+
+
+        #openai_key = os.getenv("OPENAI_API_KEY")
+        
             
         self.tavily_client = AsyncTavilyClient(api_key=tavily_key)
-        self.openai_client = AsyncOpenAI(api_key=openai_key)
+        #self.openai_client = AsyncOpenAI(api_key=openai_key)
         self.analyst_type = "base_researcher"  # Default type
 
     @property
@@ -43,8 +78,25 @@ class BaseResearcher:
         try:
             logger.info(f"Generating queries for {company} as {self.analyst_type}")
             
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
+#             response = await self.openai_client.chat.completions.create(
+#                 model="gpt-4o-mini",
+#                 messages=[
+#                     {
+#                         "role": "system",
+#                         "content": f"You are researching {company}, a company in the {industry} industry."
+#                     },
+#                     {
+#                         "role": "user",
+#                         "content": f"""Researching {company} on {datetime.now().strftime("%B %d, %Y")}.
+# {self._format_query_prompt(prompt, company, hq, current_year)}"""
+#                     }
+#                 ],
+#                 temperature=0,
+#                 max_tokens=4096,
+#                 stream=True
+#             )
+            
+            response = await self.watsonx_model.achat_stream(
                 messages=[
                     {
                         "role": "system",
@@ -56,20 +108,21 @@ class BaseResearcher:
 {self._format_query_prompt(prompt, company, hq, current_year)}"""
                     }
                 ],
-                temperature=0,
-                max_tokens=4096,
-                stream=True
             )
+
             
             queries = []
             current_query = ""
             current_query_number = 1
 
             async for chunk in response:
-                if chunk.choices[0].finish_reason == "stop":
+                # Check for completion
+                if chunk.get('choices', [{}])[0].get('finish_reason') == "stop":
                     break
-                    
-                content = chunk.choices[0].delta.content
+                
+                # Extract content from the chunk
+                content = chunk.get('choices', [{}])[0].get('delta', {}).get('content', '')
+                
                 if content:
                     current_query += content
                     

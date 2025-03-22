@@ -1,8 +1,10 @@
 from langchain_core.messages import AIMessage
 from typing import Dict, Any
-from openai import AsyncOpenAI
+#from openai import AsyncOpenAI
 import os
 import logging
+from ibm_watsonx_ai import APIClient, Credentials
+from ibm_watsonx_ai.foundation_models import ModelInference
 
 logger = logging.getLogger(__name__)
 
@@ -13,12 +15,40 @@ class Editor:
     """Compiles individual section briefings into a cohesive final report."""
     
     def __init__(self) -> None:
-        self.openai_key = os.getenv("OPENAI_API_KEY")
-        if not self.openai_key:
-            raise ValueError("OPENAI_API_KEY environment variable is not set")
+        # self.openai_key = os.getenv("OPENAI_API_KEY")
+        # if not self.openai_key:
+        #     raise ValueError("OPENAI_API_KEY environment variable is not set")
+        # Configure WatsonX
+        self.watsonx_api_key = os.getenv("WATSONX_API_KEY")
+        self.watsonx_project_id = os.getenv("WATSONX_PROJECT_ID")
+        self.watsonx_url = os.getenv("WATSONX_URL")
         
+        if not self.watsonx_api_key or not self.watsonx_project_id:
+            raise ValueError("WATSONX_API_KEY and WATSONX_PROJECT_ID environment variables must be set")
         # Configure OpenAI
-        self.openai_client = AsyncOpenAI(api_key=self.openai_key)
+        #self.openai_client = AsyncOpenAI(api_key=self.openai_key)
+        # Initialize WatsonX client
+        self.watsonx_credentials = Credentials(
+                url=self.watsonx_url,
+                api_key=self.watsonx_api_key,
+            )
+        
+        self.watsonx_client = APIClient(self.watsonx_credentials)
+        
+        # Initialize WatsonX model - adjust model_id as needed
+        watsonx_params = {
+            "decoding_method": "greedy",
+            "max_new_tokens": 4096,
+            "min_new_tokens": 0,
+            "temperature": 0
+        }
+        
+        self.watsonx_model = ModelInference(
+            model_id="ibm/granite-3-8b-instruct",  # Choose appropriate model
+            api_client=self.watsonx_client,
+            project_id=self.watsonx_project_id,
+            params = watsonx_params
+        )
         
         # Initialize context dictionary for use across methods
         self.context = {
@@ -248,8 +278,8 @@ Strictly enforce this EXACT document structure:
 Return the report in clean markdown format. No explanations or commentary."""
         
         try:
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
+            # Replace OpenAI with WatsonX call
+            response = await self.watsonx_model.achat(
                 messages=[
                     {
                         "role": "system",
@@ -259,11 +289,9 @@ Return the report in clean markdown format. No explanations or commentary."""
                         "role": "user",
                         "content": prompt
                     }
-                ],
-                temperature=0,
-                stream=False
+                ]
             )
-            initial_report = response.choices[0].message.content.strip()
+            initial_report = response['choices'][0]['message']['content'].strip()
             
             # Append the references section after LLM processing
             if reference_text:
@@ -330,8 +358,8 @@ Return the polished report in flawless markdown format. No explanation.
 Return the cleaned report in flawless markdown format. No explanations or commentary."""
         
         try:
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
+            # First call - focusing on removing redundancy
+            response = await self.watsonx_model.achat_stream(
                 messages=[
                     {
                         "role": "system",
@@ -341,13 +369,53 @@ Return the cleaned report in flawless markdown format. No explanations or commen
                         "role": "user",
                         "content": prompt
                     }
-                ],
-                temperature=0,
-                stream=True
+                ]
             )
             
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-4o-mini", 
+            # accumulated_text = ""
+            # buffer = ""
+            
+            # async for chunk in response:
+            #     # Check for completion
+            #     if chunk.get('choices', [{}])[0].get('finish_reason') == "stop":
+            #         websocket_manager = state.get('websocket_manager')
+            #         if websocket_manager and buffer:
+            #             job_id = state.get('job_id')
+            #             if job_id:
+            #                 await websocket_manager.send_status_update(
+            #                     job_id=job_id,
+            #                     status="report_chunk",
+            #                     message="Cleaning up report content",
+            #                     result={
+            #                         "chunk": buffer,
+            #                         "step": "Editor"
+            #                     }
+            #                 )
+            #         break
+                
+            #     # Extract content from the chunk
+            #     chunk_text = chunk.get('choices', [{}])[0].get('delta', {}).get('content', '')
+                
+            #     if chunk_text:
+            #         accumulated_text += chunk_text
+            #         buffer += chunk_text
+                    
+            #         if any(char in buffer for char in ['.', '!', '?', '\n']) and len(buffer) > 10:
+            #             if websocket_manager := state.get('websocket_manager'):
+            #                 if job_id := state.get('job_id'):
+            #                     await websocket_manager.send_status_update(
+            #                         job_id=job_id,
+            #                         status="report_chunk",
+            #                         message="Cleaning up report content",
+            #                         result={
+            #                             "chunk": buffer,
+            #                             "step": "Editor"
+            #                         }
+            #                     )
+            #             buffer = ""
+            
+            # Second call - ensuring consistent formatting
+            response = await self.watsonx_model.achat_stream(
                 messages=[
                     {
                         "role": "system",
@@ -357,16 +425,15 @@ Return the cleaned report in flawless markdown format. No explanations or commen
                         "role": "user",
                         "content": prompt
                     }
-                ],
-                temperature=0,
-                stream=True
+                ]
             )
             
             accumulated_text = ""
             buffer = ""
             
             async for chunk in response:
-                if chunk.choices[0].finish_reason == "stop":
+                # Check for completion
+                if chunk.get('choices', [{}])[0].get('finish_reason') == "stop":
                     websocket_manager = state.get('websocket_manager')
                     if websocket_manager and buffer:
                         job_id = state.get('job_id')
@@ -381,8 +448,10 @@ Return the cleaned report in flawless markdown format. No explanations or commen
                                 }
                             )
                     break
-                    
-                chunk_text = chunk.choices[0].delta.content
+                
+                # Extract content from the chunk
+                chunk_text = chunk.get('choices', [{}])[0].get('delta', {}).get('content', '')
+                
                 if chunk_text:
                     accumulated_text += chunk_text
                     buffer += chunk_text
