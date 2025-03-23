@@ -17,8 +17,6 @@ import {
   AnimationStyle
 } from './types';
 
-console.log("=== DIRECT CONSOLE TEST ===");
-
 const API_URL = import.meta.env.VITE_API_URL;
 const WS_URL = import.meta.env.VITE_WS_URL;
 
@@ -27,49 +25,6 @@ if (!API_URL || !WS_URL) {
     "Environment variables VITE_API_URL and VITE_WS_URL must be set"
   );
 }
-
-// Log environment variables immediately
-console.log({
-  mode: import.meta.env.MODE,
-  api_url: API_URL,
-  ws_url: WS_URL,
-});
-
-// Add this near your other console.logs
-console.log("Environment:", {
-  VITE_API_URL: import.meta.env.VITE_API_URL,
-  VITE_WS_URL: import.meta.env.VITE_WS_URL,
-  MODE: import.meta.env.MODE,
-  DEV: import.meta.env.DEV,
-  PROD: import.meta.env.PROD,
-});
-
-// Add a window load event
-window.addEventListener("load", () => {
-  console.log("=== Window Loaded ===");
-  console.log("API URL (on load):", import.meta.env.VITE_API_URL);
-});
-
-// Add this near the top of the file, after the imports
-const writingAnimation = `
-@keyframes writing {
-  0% {
-    stroke-dashoffset: 1000;
-  }
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
-.animate-writing {
-  animation: writing 1.5s linear infinite;
-}
-`;
-
-// Add this right after the imports
-const style = document.createElement('style');
-style.textContent = writingAnimation;
-document.head.appendChild(style);
 
 // Add this near your other styles at the top of the file
 const colorAnimation = `
@@ -126,11 +81,6 @@ dmSansStyle.textContent = `
 document.head.appendChild(dmSansStyle);
 
 function App() {
-  // Add useEffect for component mount logging
-  useEffect(() => {
-    console.log("=== Component Mounted ===");
-    console.log("Form ready for submission");
-  }, []);
 
   const [isResearching, setIsResearching] = useState(false);
   const [status, setStatus] = useState<ResearchStatusType | null>(null);
@@ -317,11 +267,9 @@ function App() {
 
     ws.onmessage = (event) => {
       const rawData = JSON.parse(event.data);
-      console.log("WebSocket message received:", rawData);
 
       if (rawData.type === "status_update") {
         const statusData = rawData.data;
-        console.log("Status update received:", statusData);
 
         // Handle phase transitions
         if (statusData.result?.step) {
@@ -427,7 +375,6 @@ function App() {
 
         // Handle enrichment-specific updates
         if (statusData.result?.step === "Enriching") {
-          console.log("Enrichment status update:", statusData);
           
           // Initialize enrichment counts when starting a category
           if (statusData.status === "category_start") {
@@ -509,10 +456,6 @@ function App() {
 
         // Handle curation-specific updates
         if (statusData.result?.step === "Curation") {
-          console.log("Curation status update:", {
-            status: statusData.status,
-            docCounts: statusData.result.doc_counts
-          });
           
           // Initialize doc counts when curation starts
           if (statusData.status === "processing" && statusData.result.doc_counts) {
@@ -662,8 +605,6 @@ function App() {
         ) {
           setError(statusData.error || statusData.message || "Research failed");
           if (statusData.status === "website_error" && statusData.result?.continue_research) {
-            // Don't stop research on website error if continue_research is true
-            console.log("Continuing research despite website error:", statusData.error);
           } else {
             setIsResearching(false);
             setIsComplete(false);
@@ -690,7 +631,6 @@ function App() {
     companyHq: string;
     companyIndustry: string;
   }) => {
-    console.log("Form submitted");
 
     // Clear any existing errors first
     setError(null);
@@ -715,7 +655,6 @@ function App() {
 
     try {
       const url = `${API_URL}/research`;
-      console.log("Attempting fetch to:", url);
 
       // Format the company URL if provided
       const formattedCompanyUrl = formData.companyUrl
@@ -731,7 +670,6 @@ function App() {
         industry: formData.companyIndustry || undefined,
         hq_location: formData.companyHq || undefined,
       };
-      console.log("Request data:", requestData);
 
       const response = await fetch(url, {
         method: "POST",
