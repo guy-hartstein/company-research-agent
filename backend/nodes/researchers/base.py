@@ -147,6 +147,7 @@ class BaseResearcher:
                         
                         for query in parts[:-1]:
                             query = query.strip()
+                            query = query.replace('"', '')
                             if query:
                                 queries.append(query)
                                 if websocket_manager and job_id:
@@ -166,6 +167,8 @@ class BaseResearcher:
             # Add any remaining query (even if not newline terminated)
             if current_query.strip():
                 query = current_query.strip()
+                query = query.replace('"', '')
+
                 queries.append(query)
                 if websocket_manager and job_id:
                     await websocket_manager.send_status_update(
@@ -392,6 +395,7 @@ class BaseResearcher:
                     "source": "web_search",
                     "score": item.get("score", 0.0)
                 }
+
 
         # Send completion status
         if websocket_manager and job_id:
