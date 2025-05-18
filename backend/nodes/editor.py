@@ -1,6 +1,6 @@
 from langchain_core.messages import AIMessage
 from typing import Dict, Any
-from openai import AsyncOpenAI
+from openai import AsyncAzureOpenAI
 import os
 import logging
 
@@ -13,12 +13,16 @@ class Editor:
     """Compiles individual section briefings into a cohesive final report."""
     
     def __init__(self) -> None:
-        self.openai_key = os.getenv("OPENAI_API_KEY")
-        if not self.openai_key:
-            raise ValueError("OPENAI_API_KEY environment variable is not set")
+        azure_openai_key = os.getenv("AZURE_OPENAI_API_KEY")
+        if not azure_openai_key:
+            raise ValueError("AZURE_OPENAI_API_KEY environment variable is not set")
         
         # Configure OpenAI
-        self.openai_client = AsyncOpenAI(api_key=self.openai_key)
+        self.openai_client = AsyncAzureOpenAI(
+            api_key=azure_openai_key,
+            azure_endpoint="https://dcircle-eus2.openai.azure.com",
+            azure_deployment="gpt-4.1"
+        )
         
         # Initialize context dictionary for use across methods
         self.context = {
@@ -331,7 +335,7 @@ Return the cleaned report in flawless markdown format. No explanations or commen
         
         try:
             response = await self.openai_client.chat.completions.create(
-                model="gpt-4.1-mini", 
+                model="gpt-4.1", 
                 messages=[
                     {
                         "role": "system",

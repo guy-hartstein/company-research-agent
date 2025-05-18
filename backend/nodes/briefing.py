@@ -1,4 +1,5 @@
-import google.generativeai as genai
+import vertexai
+from vertexai.generative_models import GenerativeModel
 from typing import Dict, Any, Union, List
 import os
 import logging
@@ -12,13 +13,10 @@ class Briefing:
     
     def __init__(self) -> None:
         self.max_doc_length = 8000  # Maximum document content length
-        self.gemini_key = os.getenv("GEMINI_API_KEY")
-        if not self.gemini_key:
-            raise ValueError("GEMINI_API_KEY environment variable is not set")
         
         # Configure Gemini
-        genai.configure(api_key=self.gemini_key)
-        self.gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+        vertexai.init(project="rndcircle", location="us-central1")
+        self.gemini_model = GenerativeModel('gemini-2.5-flash')
 
     async def generate_category_briefing(
         self, docs: Union[Dict[str, Any], List[Dict[str, Any]]], 

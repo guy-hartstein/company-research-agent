@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from openai import AsyncOpenAI
+from openai import AsyncAzureOpenAI
 from tavily import AsyncTavilyClient
 from ...classes import ResearchState
 from typing import Dict, Any, List
@@ -13,13 +13,17 @@ logger = logging.getLogger(__name__)
 class BaseResearcher:
     def __init__(self):
         tavily_key = os.getenv("TAVILY_API_KEY")
-        openai_key = os.getenv("OPENAI_API_KEY")
+        azure_openai_key = os.getenv("AZURE_OPENAI_API_KEY")
         
-        if not tavily_key or not openai_key:
+        if not tavily_key or not azure_openai_key:
             raise ValueError("Missing API keys")
             
         self.tavily_client = AsyncTavilyClient(api_key=tavily_key)
-        self.openai_client = AsyncOpenAI(api_key=openai_key)
+        self.openai_client = AsyncAzureOpenAI(
+            api_key=azure_openai_key,
+            azure_endpoint="https://dcircle-eus2.openai.azure.com",
+            azure_deployment="gpt-4.1"
+        )
         self.analyst_type = "base_researcher"  # Default type
 
     @property
@@ -44,7 +48,7 @@ class BaseResearcher:
             logger.info(f"Generating queries for {company} as {self.analyst_type}")
             
             response = await self.openai_client.chat.completions.create(
-                model="gpt-4.1-mini",
+                model="gpt-4.1",
                 messages=[
                     {
                         "role": "system",
