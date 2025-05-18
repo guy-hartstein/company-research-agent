@@ -47,37 +47,16 @@ else
     exit 1
 fi
 
-# Ask about virtual environment
-echo -e "\n${BLUE}Would you like to set up a Python virtual environment? (Recommended) [Y/n]${NC}"
-read -r use_venv
-use_venv=${use_venv:-Y}
+echo -e "\n${BLUE}Setting up Python virtual environment...${NC}"
+uv init
+source .venv/bin/activate
+echo -e "${GREEN}✓ Virtual environment created and activated${NC}"
 
-if [[ $use_venv =~ ^[Yy]$ ]]; then
-    echo -e "\n${BLUE}Setting up Python virtual environment...${NC}"
-    python3 -m venv .venv
-    source .venv/bin/activate
-    echo -e "${GREEN}✓ Virtual environment created and activated${NC}"
-    
-    # Install Python dependencies in venv
-    echo -e "\n${BLUE}Installing Python dependencies in virtual environment...${NC}"
-    pip install -r requirements.txt
-    echo -e "${GREEN}✓ Python dependencies installed${NC}"
-else
-    # Prompt for global installation
-    echo -e "\n${BLUE}Would you like to install Python dependencies globally? This may affect other Python projects. [y/N]${NC}"
-    read -r install_global
-    install_global=${install_global:-N}
-
-    if [[ $install_global =~ ^[Yy]$ ]]; then
-        echo -e "\n${BLUE}Installing Python dependencies globally...${NC}"
-        pip3 install -r requirements.txt
-        echo -e "${GREEN}✓ Python dependencies installed${NC}"
-        echo -e "${BLUE}Note: Dependencies have been installed in your global Python environment${NC}"
-    else
-        echo -e "${BLUE}Skipping Python dependency installation. You'll need to install them manually later.${NC}"
-        echo -e "${BLUE}You can do this by running: pip install -r requirements.txt${NC}"
-    fi
-fi
+# Install Python dependencies in venv
+echo -e "\n${BLUE}Installing Python dependencies in virtual environment...${NC}"
+uv pip install -r requirements.txt
+uv add -r requirements.txt
+echo -e "${GREEN}✓ Python dependencies installed${NC}"
 
 # Install Node.js dependencies
 echo -e "\n${BLUE}Installing Node.js dependencies...${NC}"
@@ -133,10 +112,7 @@ fi
 
 # Final instructions and server startup options
 echo -e "\n${BOLD}🎉 Setup complete!${NC}"
-
-if [[ $use_venv =~ ^[Yy]$ ]]; then
-    echo -e "\n${BLUE}Virtual environment is now activated and ready to use${NC}"
-fi
+echo -e "\n${BLUE}Virtual environment is now activated and ready to use${NC}"
 
 # Ask about starting servers
 echo -e "\n${BLUE}Would you like to start the application servers now? [Y/n]${NC}"
@@ -144,19 +120,8 @@ read -r start_servers
 start_servers=${start_servers:-Y}
 
 if [[ $start_servers =~ ^[Yy]$ ]]; then
-    echo -e "\n${BLUE}Choose backend server option:${NC}"
-    echo "1) python -m application.py"
-    echo "2) uvicorn application:app --reload --port 8000"
-    read -r backend_choice
-
-    # Start backend server in background
-    if [ "$backend_choice" = "1" ]; then
-        echo -e "\n${GREEN}Starting backend server with python...${NC}"
-        python -m application.py &
-    else
-        echo -e "\n${GREEN}Starting backend server with uvicorn...${NC}"
-        uvicorn application:app --reload --port 8000 &
-    fi
+    echo -e "\n${GREEN}Starting backend server...${NC}"
+    uvicorn application:app --reload --port 8000 &
     
     # Store backend PID
     backend_pid=$!
@@ -182,9 +147,8 @@ if [[ $start_servers =~ ^[Yy]$ ]]; then
     wait
 else
     echo -e "\n${BOLD}To start the application manually:${NC}"
-    echo -e "\n1. Start the backend server (choose one):"
-    echo "   Option 1: python -m application.py"
-    echo "   Option 2: uvicorn application:app --reload --port 8000"
+    echo -e "\n1. Start the backend server:"
+    echo "   uvicorn application:app --reload --port 8000"
     echo -e "\n2. In a new terminal, start the frontend:"
     echo "   cd ui"
     echo "   npm run dev"
