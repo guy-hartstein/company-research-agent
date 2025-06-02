@@ -128,7 +128,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 
 ### クイックセットアップ（推奨）
 
-最も簡単な開始方法はセットアップスクリプトを使用することです：
+最も簡単な開始方法はセットアップスクリプトを使用することです。このスクリプトは自動的に`uv`を検出し、利用可能な場合はより高速なPythonパッケージインストールに使用します：
 
 1. リポジトリをクローン：
 ```bash
@@ -143,11 +143,19 @@ chmod +x setup.sh
 ```
 
 セットアップスクリプトは以下を行います：
+
+- `uv`を検出してより高速なPythonパッケージインストールに使用（利用可能な場合）
 - 必要なPythonとNode.jsのバージョンを確認
 - Python仮想環境を作成（推奨）
 - すべての依存関係をインストール（PythonとNode.js）
 - 環境変数の設定をガイド
 - バックエンドとフロントエンドサーバーを起動（オプション）
+
+> **💡 プロのヒント**: [uv](https://github.com/astral-sh/uv)をインストールすることで、Pythonパッケージの大幅に高速なインストールが可能になります：
+>
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
 
 以下のAPIキーが必要です：
 - Tavily APIキー
@@ -168,11 +176,20 @@ cd tavily-company-research
 2. バックエンド依存関係をインストール：
 ```bash
 # オプション：仮想環境を作成・アクティベート
-python -m venv .venv
+# uv使用（より高速 - 利用可能な場合は推奨）：
+uv venv .venv
 source .venv/bin/activate
 
+# または標準Python：
+# python -m venv .venv
+# source .venv/bin/activate
+
 # Python依存関係をインストール
-pip install -r requirements.txt
+# uv使用（より高速）：
+uv pip install -r requirements.txt
+
+# またはpip使用：
+# pip install -r requirements.txt
 ```
 
 3. フロントエンド依存関係をインストール：
@@ -263,7 +280,10 @@ npm run dev
    **オプション2：UvicornでFastAPI**
    ```bash
    # uvicornがインストールされていない場合はインストール
-   pip install uvicorn
+   # uv使用（より高速）：
+   uv pip install uvicorn
+   # またはpip使用：
+   # pip install uvicorn
 
    # ホットリロード付きでFastAPIアプリケーションを実行
    uvicorn application:app --reload --port 8000
@@ -280,6 +300,8 @@ npm run dev
    ```
 
 3. `http://localhost:5173`でアプリケーションにアクセス
+
+> **⚡ パフォーマンス注意**: セットアップ時に`uv`を使用した場合、大幅に高速なパッケージインストールと依存関係解決の恩恵を受けられます。`uv`はRustで書かれた現代的なPythonパッケージマネージャーで、pipより10〜100倍高速です。
 
 ### デプロイメントオプション
 

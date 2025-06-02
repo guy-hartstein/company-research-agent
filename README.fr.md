@@ -128,7 +128,7 @@ La plateforme implémente un système de communication en temps réel basé sur 
 
 ### Configuration Rapide (Recommandée)
 
-La façon la plus simple de commencer est d'utiliser le script de configuration :
+La façon la plus simple de commencer est d'utiliser le script de configuration, qui détecte automatiquement et utilise `uv` pour une installation plus rapide des paquets Python lorsqu'il est disponible :
 
 1. Clonez le dépôt :
 ```bash
@@ -143,13 +143,22 @@ chmod +x setup.sh
 ```
 
 Le script de configuration va :
+
+- Détecter et utiliser `uv` pour une installation plus rapide des paquets Python (si disponible)
 - Vérifier les versions requises de Python et Node.js
 - Créer éventuellement un environnement virtuel Python (recommandé)
 - Installer toutes les dépendances (Python et Node.js)
 - Vous guider dans la configuration de vos variables d'environnement
 - Démarrer éventuellement les serveurs backend et frontend
 
+> **💡 Conseil Pro** : Installez [uv](https://github.com/astral-sh/uv) pour une installation significativement plus rapide des paquets Python :
+>
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
+
 Vous aurez besoin des clés API suivantes :
+
 - Clé API Tavily
 - Clé API Google Gemini
 - Clé API OpenAI
@@ -160,28 +169,41 @@ Vous aurez besoin des clés API suivantes :
 Si vous préférez configurer manuellement, suivez ces étapes :
 
 1. Clonez le dépôt :
+
 ```bash
 git clone https://github.com/pogjester/tavily-company-research.git
 cd tavily-company-research
 ```
 
 2. Installez les dépendances backend :
+
 ```bash
 # Optionnel : Créez et activez un environnement virtuel
-python -m venv .venv
+# Avec uv (plus rapide - recommandé si disponible) :
+uv venv .venv
 source .venv/bin/activate
 
+# Ou avec Python standard :
+# python -m venv .venv
+# source .venv/bin/activate
+
 # Installez les dépendances Python
-pip install -r requirements.txt
+# Avec uv (plus rapide) :
+uv pip install -r requirements.txt
+
+# Ou avec pip :
+# pip install -r requirements.txt
 ```
 
 3. Installez les dépendances frontend :
+
 ```bash
 cd ui
 npm install
 ```
 
 4. Créez un fichier `.env` avec vos clés API :
+
 ```env
 TAVILY_API_KEY=votre_clé_tavily
 GEMINI_API_KEY=votre_clé_gemini
@@ -196,12 +218,14 @@ OPENAI_API_KEY=votre_clé_openai
 L'application peut être exécutée à l'aide de Docker et Docker Compose :
 
 1. Clonez le dépôt :
+
 ```bash
 git clone https://github.com/pogjester/tavily-company-research.git
 cd tavily-company-research
 ```
 
 2. Créez un fichier `.env` avec vos clés API :
+
 ```env
 TAVILY_API_KEY=votre_clé_tavily
 GEMINI_API_KEY=votre_clé_gemini
@@ -212,20 +236,24 @@ OPENAI_API_KEY=votre_clé_openai
 ```
 
 3. Construisez et démarrez les conteneurs :
+
 ```bash
 docker compose up --build
 ```
 
 Cela démarrera les services backend et frontend :
+
 - L'API backend sera disponible sur `http://localhost:8000`
 - Le frontend sera disponible sur `http://localhost:5174`
 
 Pour arrêter les services :
+
 ```bash
 docker compose down
 ```
 
 Remarque : Lors de la mise à jour des variables d'environnement dans `.env`, vous devrez redémarrer les conteneurs :
+
 ```bash
 docker compose down && docker compose up
 ```
@@ -233,6 +261,7 @@ docker compose down && docker compose up
 ### Exécution de l'Application
 
 1. Démarrez le serveur backend (choisissez une option) :
+
 ```bash
 # Option 1 : Module Python Direct
 python -m application.py
@@ -242,6 +271,7 @@ uvicorn application:app --reload --port 8000
 ```
 
 2. Dans un nouveau terminal, démarrez le frontend :
+
 ```bash
 cd ui
 npm run dev
@@ -256,14 +286,19 @@ npm run dev
 1. Démarrez le serveur backend (choisissez une option) :
 
    **Option 1 : Module Python Direct**
+
    ```bash
    python -m application.py
    ```
 
    **Option 2 : FastAPI avec Uvicorn**
+
    ```bash
    # Installez uvicorn si ce n'est pas déjà fait
-   pip install uvicorn
+   # Avec uv (plus rapide) :
+   uv pip install uvicorn
+   # Ou avec pip :
+   # pip install uvicorn
 
    # Exécutez l'application FastAPI avec rechargement à chaud
    uvicorn application:app --reload --port 8000
@@ -274,12 +309,15 @@ npm run dev
    - Point d'accès WebSocket : `ws://localhost:8000/research/ws/{job_id}`
 
 2. Démarrez le serveur de développement frontend :
+
    ```bash
    cd ui
    npm run dev
    ```
 
 3. Accédez à l'application sur `http://localhost:5173`
+
+> **⚡ Note de Performance** : Si vous avez utilisé `uv` lors de l'installation, vous bénéficierez d'une installation de paquets et d'une résolution de dépendances significativement plus rapides. `uv` est un gestionnaire de paquets Python moderne écrit en Rust qui peut être 10 à 100 fois plus rapide que pip.
 
 ### Options de Déploiement
 
@@ -288,41 +326,17 @@ L'application peut être déployée sur diverses plateformes cloud. Voici quelqu
 #### AWS Elastic Beanstalk
 
 1. Installez l'EB CLI :
+
    ```bash
    pip install awsebcli
    ```
 
 2. Initialisez l'application EB :
+
    ```bash
    eb init -p python-3.11 tavily-research
    ```
 
 3. Créez et déployez :
-   ```bash
-   eb create tavily-research-prod
+
    ```
-
-#### Autres Options de Déploiement
-
-- **Docker** : L'application inclut un Dockerfile pour le déploiement conteneurisé
-- **Heroku** : Déployez directement depuis GitHub avec le buildpack Python
-- **Google Cloud Run** : Adapté au déploiement conteneurisé avec mise à l'échelle automatique
-
-Choisissez la plateforme qui convient le mieux à vos besoins. L'application est indépendante de la plateforme et peut être hébergée partout où les applications web Python sont prises en charge.
-
-## Contribution
-
-1. Forkez le dépôt
-2. Créez une branche de fonctionnalité (`git checkout -b fonctionnalite/superbe-fonction`)
-3. Validez vos modifications (`git commit -m 'Ajout d'une superbe fonction'`)
-4. Poussez vers la branche (`git push origin fonctionnalite/superbe-fonction`)
-5. Ouvrez une Pull Request
-
-## Licence
-
-Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
-## Remerciements
-
-- [Tavily](https://tavily.com/) pour l'API de recherche
-- Toutes les autres bibliothèques open-source et leurs contributeurs

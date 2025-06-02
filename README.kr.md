@@ -128,7 +128,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 
 ### 빠른 설정 (권장)
 
-시작하는 가장 쉬운 방법은 설정 스크립트를 사용하는 것입니다:
+시작하는 가장 쉬운 방법은 설정 스크립트를 사용하는 것입니다. 이 스크립트는 자동으로 `uv`를 감지하고 사용 가능할 때 더 빠른 Python 패키지 설치에 사용합니다:
 
 1. 저장소 클론:
 ```bash
@@ -143,11 +143,19 @@ chmod +x setup.sh
 ```
 
 설정 스크립트는 다음을 수행합니다:
+
+- `uv`를 감지하고 더 빠른 Python 패키지 설치에 사용 (사용 가능한 경우)
 - 필요한 Python 및 Node.js 버전 확인
 - Python 가상 환경 생성 (권장)
 - 모든 종속성 설치 (Python 및 Node.js)
 - 환경 변수 설정 안내
 - 백엔드 및 프론트엔드 서버 시작 (선택사항)
+
+> **💡 프로 팁**: [uv](https://github.com/astral-sh/uv)를 설치하여 훨씬 빠른 Python 패키지 설치를 이용하세요:
+>
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
 
 다음 API 키가 필요합니다:
 - Tavily API 키
@@ -168,11 +176,20 @@ cd tavily-company-research
 2. 백엔드 종속성 설치:
 ```bash
 # 선택사항: 가상 환경 생성 및 활성화
-python -m venv .venv
+# uv 사용 (더 빠름 - 사용 가능한 경우 권장):
+uv venv .venv
 source .venv/bin/activate
 
+# 또는 표준 Python:
+# python -m venv .venv
+# source .venv/bin/activate
+
 # Python 종속성 설치
-pip install -r requirements.txt
+# uv 사용 (더 빠름):
+uv pip install -r requirements.txt
+
+# 또는 pip 사용:
+# pip install -r requirements.txt
 ```
 
 3. 프론트엔드 종속성 설치:
@@ -249,6 +266,8 @@ npm run dev
 
 3. `http://localhost:5173`에서 애플리케이션에 액세스
 
+> **⚡ 성능 참고사항**: 설정 중에 `uv`를 사용했다면 훨씬 빠른 패키지 설치와 종속성 해결의 이점을 얻을 수 있습니다. `uv`는 Rust로 작성된 현대적인 Python 패키지 관리자로 pip보다 10-100배 빠를 수 있습니다.
+
 ## 사용법
 
 ### 로컬 개발
@@ -263,7 +282,10 @@ npm run dev
    **옵션 2: Uvicorn으로 FastAPI**
    ```bash
    # uvicorn이 설치되지 않은 경우 설치
-   pip install uvicorn
+   # uv 사용 (더 빠름):
+   uv pip install uvicorn
+   # 또는 pip 사용:
+   # pip install uvicorn
 
    # 핫 리로드로 FastAPI 애플리케이션 실행
    uvicorn application:app --reload --port 8000

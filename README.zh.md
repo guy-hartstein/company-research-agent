@@ -128,7 +128,7 @@ https://github.com/user-attachments/assets/071aa491-009b-4d76-a698-88863149e71c
 
 ### 快速安装（推荐）
 
-最简单的方法是使用安装脚本：
+最简单的方法是使用安装脚本，它会自动检测并使用 `uv` 来实现更快的 Python 包安装（如果可用）：
 
 1. 克隆仓库：
 ```bash
@@ -143,11 +143,19 @@ chmod +x setup.sh
 ```
 
 安装脚本将：
+
+- 检测并使用 `uv` 进行更快的 Python 包安装（如果可用）
 - 检查所需的Python和Node.js版本
 - 可选创建Python虚拟环境（推荐）
 - 安装所有依赖（Python和Node.js）
 - 指导您设置环境变量
 - 可选启动后端和前端服务器
+
+> **💡 专业提示**: 安装 [uv](https://github.com/astral-sh/uv) 以获得显著更快的 Python 包安装：
+>
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
 
 您需要准备以下API密钥：
 - Tavily API密钥
@@ -168,11 +176,20 @@ cd tavily-company-research
 2. 安装后端依赖：
 ```bash
 # 可选：创建并激活虚拟环境
-python -m venv .venv
+# 使用 uv（更快 - 如果可用则推荐）：
+uv venv .venv
 source .venv/bin/activate
 
-# 安装Python依赖
-pip install -r requirements.txt
+# 或使用标准 Python：
+# python -m venv .venv
+# source .venv/bin/activate
+
+# 安装 Python 依赖
+# 使用 uv（更快）：
+uv pip install -r requirements.txt
+
+# 或使用 pip：
+# pip install -r requirements.txt
 ```
 
 3. 安装前端依赖：
@@ -249,6 +266,8 @@ npm run dev
 
 3. 在`http://localhost:5173`访问应用程序
 
+> **⚡ 性能说明**: 如果您在设置过程中使用了 `uv`，您将受益于显著更快的包安装和依赖解析。`uv` 是一个用 Rust 编写的现代 Python 包管理器，比 pip 快 10-100 倍。
+
 ## 使用方法
 
 ### 本地开发
@@ -263,7 +282,10 @@ npm run dev
    **选项2：使用Uvicorn的FastAPI**
    ```bash
    # 如果尚未安装，安装uvicorn
-   pip install uvicorn
+   # 使用 uv（更快）：
+   uv pip install uvicorn
+   # 或使用 pip：
+   # pip install uvicorn
 
    # 使用热重载运行FastAPI应用
    uvicorn application:app --reload --port 8000
@@ -325,4 +347,4 @@ npm run dev
 ## 致谢
 
 - [Tavily](https://tavily.com/)提供研究API
-- 所有其他开源库及其贡献者 
+- 所有其他开源库及其贡献者

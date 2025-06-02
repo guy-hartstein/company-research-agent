@@ -20,7 +20,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 - **Investigación Multi-Fuente**: Recopila datos de diversas fuentes, incluyendo sitios web de empresas, artículos de noticias, informes financieros y análisis sectoriales
 - **Filtrado de Contenido Impulsado por IA**: Utiliza la puntuación de relevancia de Tavily para la selección de contenido
 - **Transmisión de Progreso en Tiempo Real**: Utiliza conexiones WebSocket para transmitir el progreso de la investigación y los resultados
-- **Arquitectura de Modelo Dual**: 
+- **Arquitectura de Modelo Dual**:
   - Gemini 2.0 Flash para síntesis de investigación de alto contexto
   - GPT-4.1 para formato preciso y edición de informes
 - **Frontend Moderno en React**: Interfaz de usuario receptiva con actualizaciones en tiempo real, seguimiento de progreso y opciones de descarga
@@ -127,7 +127,7 @@ La plataforma implementa un sistema de comunicación en tiempo real basado en We
 
 ### Instalación Rápida (Recomendada)
 
-La forma más sencilla de comenzar es utilizando el script de instalación:
+La forma más sencilla de comenzar es utilizando el script de instalación, que detecta automáticamente y usa `uv` para una instalación más rápida de paquetes Python cuando está disponible:
 
 1. Clonar el repositorio:
 ```bash
@@ -142,11 +142,19 @@ chmod +x setup.sh
 ```
 
 El script de instalación hará lo siguiente:
+
+- Detectar y usar `uv` para una instalación más rápida de paquetes Python (si está disponible)
 - Verificar las versiones requeridas de Python y Node.js
 - Opcionalmente crear un entorno virtual de Python (recomendado)
 - Instalar todas las dependencias (Python y Node.js)
 - Guiarte a través de la configuración de tus variables de entorno
 - Opcionalmente iniciar los servidores de backend y frontend
+
+> **💡 Consejo Pro**: Instala [uv](https://github.com/astral-sh/uv) para una instalación significativamente más rápida de paquetes Python:
+>
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
 
 Necesitarás tener listas las siguientes claves API:
 - Clave API de Tavily
@@ -167,11 +175,20 @@ cd tavily-company-research
 2. Instalar dependencias de backend:
 ```bash
 # Opcional: Crear y activar entorno virtual
-python -m venv .venv
+# Con uv (más rápido - recomendado si está disponible):
+uv venv .venv
 source .venv/bin/activate
 
+# O con Python estándar:
+# python -m venv .venv
+# source .venv/bin/activate
+
 # Instalar dependencias de Python
-pip install -r requirements.txt
+# Con uv (más rápido):
+uv pip install -r requirements.txt
+
+# O con pip:
+# pip install -r requirements.txt
 ```
 
 3. Instalar dependencias de frontend:
@@ -262,7 +279,10 @@ npm run dev
    **Opción 2: FastAPI con Uvicorn**
    ```bash
    # Instalar uvicorn si aún no está instalado
-   pip install uvicorn
+   # Con uv (más rápido):
+   uv pip install uvicorn
+   # O con pip:
+   # pip install uvicorn
 
    # Ejecutar la aplicación FastAPI con recarga automática
    uvicorn application:app --reload --port 8000
@@ -279,6 +299,8 @@ npm run dev
    ```
 
 3. Acceder a la aplicación en `http://localhost:5173`
+
+> **⚡ Nota de Rendimiento**: Si usaste `uv` durante la instalación, te beneficiarás de una instalación de paquetes y resolución de dependencias significativamente más rápida. `uv` es un gestor de paquetes Python moderno escrito en Rust que puede ser 10-100x más rápido que pip.
 
 ### Opciones de Despliegue
 

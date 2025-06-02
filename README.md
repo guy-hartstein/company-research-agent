@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 - **Multi-Source Research**: Gathers data from various sources including company websites, news articles, financial reports, and industry analyses
 - **AI-Powered Content Filtering**: Uses Tavily's relevance scoring for content curation
 - **Real-Time Progress Streaming**: Uses WebSocket connections to stream research progress and results
-- **Dual Model Architecture**: 
+- **Dual Model Architecture**:
   - Gemini 2.0 Flash for high-context research synthesis
   - GPT-4.1 for precise report formatting and editing
 - **Modern React Frontend**: Responsive UI with real-time updates, progress tracking, and download options
@@ -128,7 +128,7 @@ The platform implements a WebSocket-based real-time communication system:
 
 ### Quick Setup (Recommended)
 
-The easiest way to get started is using the setup script:
+The easiest way to get started is using the setup script, which automatically detects and uses `uv` for faster Python package installation when available:
 
 1. Clone the repository:
 ```bash
@@ -143,11 +143,19 @@ chmod +x setup.sh
 ```
 
 The setup script will:
+
+- Detect and use `uv` for faster Python package installation (if available)
 - Check for required Python and Node.js versions
 - Optionally create a Python virtual environment (recommended)
 - Install all dependencies (Python and Node.js)
 - Guide you through setting up your environment variables
 - Optionally start both backend and frontend servers
+
+> **💡 Pro Tip**: Install [uv](https://github.com/astral-sh/uv) for significantly faster Python package installation:
+>
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
 
 You'll need the following API keys ready:
 - Tavily API Key
@@ -168,11 +176,20 @@ cd tavily-company-research
 2. Install backend dependencies:
 ```bash
 # Optional: Create and activate virtual environment
-python -m venv .venv
+# With uv (faster - recommended if available):
+uv venv .venv
 source .venv/bin/activate
 
+# Or with standard Python:
+# python -m venv .venv
+# source .venv/bin/activate
+
 # Install Python dependencies
-pip install -r requirements.txt
+# With uv (faster):
+uv pip install -r requirements.txt
+
+# Or with pip:
+# pip install -r requirements.txt
 ```
 
 3. Install frontend dependencies:
@@ -263,7 +280,10 @@ npm run dev
    **Option 2: FastAPI with Uvicorn**
    ```bash
    # Install uvicorn if not already installed
-   pip install uvicorn
+   # With uv (faster):
+   uv pip install uvicorn
+   # Or with pip:
+   # pip install uvicorn
 
    # Run the FastAPI application with hot reload
    uvicorn application:app --reload --port 8000
@@ -280,6 +300,8 @@ npm run dev
    ```
 
 3. Access the application at `http://localhost:5173`
+
+> **⚡ Performance Note**: If you used `uv` during setup, you'll benefit from significantly faster package installation and dependency resolution. `uv` is a modern Python package manager written in Rust that can be 10-100x faster than pip.
 
 ### Deployment Options
 

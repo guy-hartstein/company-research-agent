@@ -4,6 +4,7 @@
 BOLD='\033[1m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Version comparison function
@@ -13,8 +14,19 @@ version_compare() {
 
 echo -e "${BOLD}🚀 Welcome to the Agentic Company Researcher Setup!${NC}\n"
 
+# Check if uv is installed
+echo -e "${BLUE}Checking for uv (Python package installer)...${NC}"
+if command -v uv >/dev/null 2>&1; then
+    uv_version=$(uv --version | cut -d' ' -f2)
+    echo -e "${GREEN}✓ uv $uv_version is available - will use for package installation${NC}"
+    use_uv=true
+else
+    echo -e "${YELLOW}⚠ uv not found - will use pip${NC}"
+    use_uv=false
+fi
+
 # Check if Python 3.11+ is installed
-echo -e "${BLUE}Checking Python version...${NC}"
+echo -e "\n${BLUE}Checking Python version...${NC}"
 if command -v python3 >/dev/null 2>&1; then
     python_version=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
     if [ "$(version_compare "$python_version")" -ge "$(version_compare "3.11")" ]; then
@@ -48,34 +60,64 @@ else
 fi
 
 # Ask about virtual environment
-echo -e "\n${BLUE}Would you like to set up a Python virtual environment? (Recommended) [Y/n]${NC}"
+if [ "$use_uv" = true ]; then
+    echo -e "\n${BLUE}Would you like to set up a Python virtual environment with uv? (Recommended) [Y/n]${NC}"
+else
+    echo -e "\n${BLUE}Would you like to set up a Python virtual environment? (Recommended) [Y/n]${NC}"
+fi
 read -r use_venv
 use_venv=${use_venv:-Y}
 
 if [[ $use_venv =~ ^[Yy]$ ]]; then
-    echo -e "\n${BLUE}Setting up Python virtual environment...${NC}"
-    python3 -m venv .venv
-    source .venv/bin/activate
-    echo -e "${GREEN}✓ Virtual environment created and activated${NC}"
-    
-    # Install Python dependencies in venv
-    echo -e "\n${BLUE}Installing Python dependencies in virtual environment...${NC}"
-    pip install -r requirements.txt
-    echo -e "${GREEN}✓ Python dependencies installed${NC}"
+    if [ "$use_uv" = true ]; then
+        echo -e "\n${BLUE}Setting up Python virtual environment with uv...${NC}"
+        uv venv .venv
+        source .venv/bin/activate
+        echo -e "${GREEN}✓ Virtual environment created and activated with uv${NC}"
+
+        # Install Python dependencies with uv
+        echo -e "\n${BLUE}Installing Python dependencies with uv...${NC}"
+        uv pip install -r requirements.txt
+        echo -e "${GREEN}✓ Python dependencies installed${NC}"
+    else
+        echo -e "\n${BLUE}Setting up Python virtual environment with pip...${NC}"
+        python3 -m venv .venv
+        source .venv/bin/activate
+        echo -e "${GREEN}✓ Virtual environment created and activated${NC}"
+
+        # Install Python dependencies in venv
+        echo -e "\n${BLUE}Installing Python dependencies in virtual environment...${NC}"
+        pip install -r requirements.txt
+        echo -e "${GREEN}✓ Python dependencies installed${NC}"
+    fi
 else
     # Prompt for global installation
-    echo -e "\n${BLUE}Would you like to install Python dependencies globally? This may affect other Python projects. [y/N]${NC}"
+    if [ "$use_uv" = true ]; then
+        echo -e "\n${BLUE}Would you like to install Python dependencies globally with uv? This may affect other Python projects. [y/N]${NC}"
+    else
+        echo -e "\n${BLUE}Would you like to install Python dependencies globally? This may affect other Python projects. [y/N]${NC}"
+    fi
     read -r install_global
     install_global=${install_global:-N}
 
     if [[ $install_global =~ ^[Yy]$ ]]; then
-        echo -e "\n${BLUE}Installing Python dependencies globally...${NC}"
-        pip3 install -r requirements.txt
-        echo -e "${GREEN}✓ Python dependencies installed${NC}"
+        if [ "$use_uv" = true ]; then
+            echo -e "\n${BLUE}Installing Python dependencies globally with uv...${NC}"
+            uv pip install -r requirements.txt --system
+            echo -e "${GREEN}✓ Python dependencies installed${NC}"
+        else
+            echo -e "\n${BLUE}Installing Python dependencies globally...${NC}"
+            pip3 install -r requirements.txt
+            echo -e "${GREEN}✓ Python dependencies installed${NC}"
+        fi
         echo -e "${BLUE}Note: Dependencies have been installed in your global Python environment${NC}"
     else
         echo -e "${BLUE}Skipping Python dependency installation. You'll need to install them manually later.${NC}"
-        echo -e "${BLUE}You can do this by running: pip install -r requirements.txt${NC}"
+        if [ "$use_uv" = true ]; then
+            echo -e "${BLUE}You can do this by running: uv pip install -r requirements.txt${NC}"
+        else
+            echo -e "${BLUE}You can do this by running: pip install -r requirements.txt${NC}"
+        fi
     fi
 fi
 
@@ -135,7 +177,11 @@ fi
 echo -e "\n${BOLD}🎉 Setup complete!${NC}"
 
 if [[ $use_venv =~ ^[Yy]$ ]]; then
-    echo -e "\n${BLUE}Virtual environment is now activated and ready to use${NC}"
+    if [ "$use_uv" = true ]; then
+        echo -e "\n${BLUE}Virtual environment is now activated (managed by uv)${NC}"
+    else
+        echo -e "\n${BLUE}Virtual environment is now activated${NC}"
+    fi
 fi
 
 # Ask about starting servers
@@ -157,26 +203,26 @@ if [[ $start_servers =~ ^[Yy]$ ]]; then
         echo -e "\n${GREEN}Starting backend server with uvicorn...${NC}"
         uvicorn application:app --reload --port 8000 &
     fi
-    
+
     # Store backend PID
     backend_pid=$!
-    
+
     # Wait a moment for backend to start
     sleep 2
-    
+
     # Start frontend server
     echo -e "\n${GREEN}Starting frontend server...${NC}"
     cd ui
     npm run dev &
     frontend_pid=$!
     cd ..
-    
+
     echo -e "\n${GREEN}Servers are starting up! The application will be available at:${NC}"
     echo -e "${BOLD}http://localhost:5173${NC}"
-    
+
     # Add trap to handle script termination
     trap 'kill $backend_pid $frontend_pid 2>/dev/null' EXIT
-    
+
     # Keep script running until user stops it
     echo -e "\n${BLUE}Press Ctrl+C to stop the servers${NC}"
     wait
@@ -194,4 +240,4 @@ fi
 echo -e "\n${BOLD}Need help?${NC}"
 echo "- Documentation: README.md"
 echo "- Issues: https://github.com/pogjester/tavily-company-research/issues"
-echo -e "\n${GREEN}Happy researching! 🚀${NC}" 
+echo -e "\n${GREEN}Happy researching! 🚀${NC}"
