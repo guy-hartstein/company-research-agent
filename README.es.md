@@ -160,6 +160,7 @@ Necesitarás tener listas las siguientes claves API:
 - Clave API de Tavily
 - Clave API de Google Gemini
 - Clave API de OpenAI
+- Clave API de Google Maps
 - URI de MongoDB (opcional)
 
 ### Instalación Manual
@@ -197,7 +198,14 @@ cd ui
 npm install
 ```
 
-4. Crear un archivo `.env` con tus claves API:
+4. **Configurar Variables de Entorno**:
+
+Este proyecto requiere dos archivos `.env` separados para el backend y el frontend.
+
+**Configuración del Backend:**
+
+Crea un archivo `.env` en el directorio raíz del proyecto y añade tus claves API del backend:
+
 ```env
 TAVILY_API_KEY=tu_clave_tavily
 GEMINI_API_KEY=tu_clave_gemini
@@ -205,6 +213,22 @@ OPENAI_API_KEY=tu_clave_openai
 
 # Opcional: Habilitar persistencia en MongoDB
 # MONGODB_URI=tu_cadena_de_conexion_mongodb
+```
+
+**Configuración del Frontend:**
+
+Crea un archivo `.env` dentro del directorio `ui`. Puedes copiar primero el archivo de ejemplo:
+
+```bash
+cp ui/.env.development.example ui/.env
+```
+
+Luego, abre `ui/.env` y añade tus variables de entorno del frontend:
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+VITE_GOOGLE_MAPS_API_KEY=tu_clave_google_maps_aqui
 ```
 
 ### Instalación con Docker
@@ -217,7 +241,14 @@ git clone https://github.com/pogjester/tavily-company-research.git
 cd tavily-company-research
 ```
 
-2. Crear un archivo `.env` con tus claves API:
+2. **Configurar Variables de Entorno**:
+
+La configuración de Docker utiliza dos archivos `.env` separados.
+
+**Configuración del Backend:**
+
+Crea un archivo `.env` en el directorio raíz del proyecto con tus claves API del backend:
+
 ```env
 TAVILY_API_KEY=tu_clave_tavily
 GEMINI_API_KEY=tu_clave_gemini
@@ -225,6 +256,22 @@ OPENAI_API_KEY=tu_clave_openai
 
 # Opcional: Habilitar persistencia en MongoDB
 # MONGODB_URI=tu_cadena_de_conexion_mongodb
+```
+
+**Configuración del Frontend:**
+
+Crea un archivo `.env` dentro del directorio `ui`. Puedes copiar primero el archivo de ejemplo:
+
+```bash
+cp ui/.env.development.example ui/.env
+```
+
+Luego, abre `ui/.env` y añade tus variables de entorno del frontend:
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+VITE_GOOGLE_MAPS_API_KEY=tu_clave_google_maps_aqui
 ```
 
 3. Construir e iniciar los contenedores:

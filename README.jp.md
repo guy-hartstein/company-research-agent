@@ -161,6 +161,7 @@ chmod +x setup.sh
 - Tavily APIキー
 - Google Gemini APIキー
 - OpenAI APIキー
+- Google Maps APIキー
 - MongoDB URI（オプション）
 
 ### 手動セットアップ
@@ -198,7 +199,14 @@ cd ui
 npm install
 ```
 
-4. APIキーを含む`.env`ファイルを作成：
+4. **環境変数の設定**：
+
+このプロジェクトはバックエンドとフロントエンド用に2つの個別の`.env`ファイルが必要です。
+
+**バックエンド設定：**
+
+プロジェクトのルートディレクトリに`.env`ファイルを作成し、バックエンドAPIキーを追加します：
+
 ```env
 TAVILY_API_KEY=your_tavily_key
 GEMINI_API_KEY=your_gemini_key
@@ -206,6 +214,22 @@ OPENAI_API_KEY=your_openai_key
 
 # オプション：MongoDB永続化を有効化
 # MONGODB_URI=your_mongodb_connection_string
+```
+
+**フロントエンド設定：**
+
+`ui`ディレクトリ内に`.env`ファイルを作成します。最初にサンプルファイルをコピーできます：
+
+```bash
+cp ui/.env.development.example ui/.env
+```
+
+次に、`ui/.env`を開いてフロントエンド環境変数を追加します：
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 ```
 
 ### Dockerセットアップ
@@ -218,7 +242,14 @@ git clone https://github.com/pogjester/tavily-company-research.git
 cd tavily-company-research
 ```
 
-2. APIキーを含む`.env`ファイルを作成：
+2. **環境変数の設定**：
+
+Docker設定は2つの個別の`.env`ファイルを使用します。
+
+**バックエンド設定：**
+
+プロジェクトのルートディレクトリに`.env`ファイルを作成し、バックエンドAPIキーを追加します：
+
 ```env
 TAVILY_API_KEY=your_tavily_key
 GEMINI_API_KEY=your_gemini_key
@@ -226,6 +257,22 @@ OPENAI_API_KEY=your_openai_key
 
 # オプション：MongoDB永続化を有効化
 # MONGODB_URI=your_mongodb_connection_string
+```
+
+**フロントエンド設定：**
+
+`ui`ディレクトリ内に`.env`ファイルを作成します。最初にサンプルファイルをコピーできます：
+
+```bash
+cp ui/.env.development.example ui/.env
+```
+
+次に、`ui/.env`を開いてフロントエンド環境変数を追加します：
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 ```
 
 3. コンテナをビルド・起動：
