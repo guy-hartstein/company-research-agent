@@ -14,49 +14,100 @@ declare global {
   }
 }
 
-// Create a global script loader to ensure we only load the script once
-let scriptPromise: Promise<void> | null = null;
+// Global state to track script loading
+let isScriptLoaded = false;
+let isScriptLoading = false;
+let scriptLoadPromise: Promise<void> | null = null;
 
 const loadGoogleMapsScript = (): Promise<void> => {
-  if (scriptPromise) {
-    return scriptPromise;
+  // If already loaded, return resolved promise
+  if (isScriptLoaded && window.google?.maps?.places) {
+    return Promise.resolve();
   }
 
-  scriptPromise = new Promise<void>((resolve) => {
-    // If already loaded, resolve immediately
+  // If already loading, return existing promise
+  if (isScriptLoading && scriptLoadPromise) {
+    return scriptLoadPromise;
+  }
+
+  // Check if script is already in the document
+  const existingScript = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+  if (existingScript && window.google?.maps?.places) {
+    isScriptLoaded = true;
+    return Promise.resolve();
+  }
+
+  isScriptLoading = true;
+  scriptLoadPromise = new Promise<void>((resolve, reject) => {
+  // If API is already available, resolve immediately
     if (window.google?.maps?.places) {
+      isScriptLoaded = true;
+      isScriptLoading = false;
       resolve();
       return;
     }
 
     // Define the callback function
     window.initGoogleMapsCallback = () => {
+      isScriptLoaded = true;
+      isScriptLoading = false;
       resolve();
     };
 
-    // Create script element
-    const script = document.createElement('script');
-    // Use loading=async parameter as recommended by Google
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places&loading=async&callback=initGoogleMapsCallback`;
-    script.async = true;
-    script.defer = true;
-    
-    // Handle errors
-    script.onerror = (error) => {
-      console.error('Error loading Google Maps script:', error);
-      scriptPromise = null;
-    };
+    // Create script element only if it doesn't exist
+    if (!existingScript) {
+      const script = document.createElement('script');
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-    // Append to document
-    document.head.appendChild(script);
+      if (!apiKey) {
+        console.error('Google Maps API key is not defined. Please set VITE_GOOGLE_MAPS_API_KEY in your environment variables.');
+        isScriptLoading = false;
+        reject(new Error('Google Maps API key is not defined'));
+        return;
+      }
+
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=initGoogleMapsCallback`;
+      script.async = true;
+      script.defer = true;
+
+      // Handle errors
+      script.onerror = (error) => {
+        console.error('Error loading Google Maps script:', error);
+        isScriptLoading = false;
+        scriptLoadPromise = null;
+        reject(error);
+      };
+
+      // Append to document
+      document.head.appendChild(script);
+    } else {
+      // Script exists but API might not be ready yet
+      const checkInterval = setInterval(() => {
+        if (window.google?.maps?.places) {
+          isScriptLoaded = true;
+          isScriptLoading = false;
+          clearInterval(checkInterval);
+          resolve();
+        }
+      }, 100);
+
+      // Clear interval after 10 seconds to prevent infinite checking
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        if (!isScriptLoaded) {
+          isScriptLoading = false;
+          reject(new Error('Google Maps API failed to load within timeout'));
+        }
+      }, 10000);
+    }
   });
 
-  return scriptPromise;
+  return scriptLoadPromise;
 };
 
 const LocationInput: React.FC<LocationInputProps> = ({ value, onChange, className }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const autocompleteElementRef = useRef<any>(null);
   const [isApiLoaded, setIsApiLoaded] = useState(false);
   const onChangeRef = useRef(onChange);
   const isInitializedRef = useRef(false);
@@ -68,27 +119,6 @@ const LocationInput: React.FC<LocationInputProps> = ({ value, onChange, classNam
 
   // Load the Google Maps API
   useEffect(() => {
-    // Check if script is already in the document
-    const existingScript = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
-    if (existingScript) {
-      console.warn('Google Maps script is already loaded elsewhere in the application');
-      // If script exists but API not available yet, wait for it
-      if (!window.google?.maps?.places) {
-        const checkInterval = setInterval(() => {
-          if (window.google?.maps?.places) {
-            setIsApiLoaded(true);
-            clearInterval(checkInterval);
-          }
-        }, 100);
-        
-        // Clear interval after 10 seconds to prevent infinite checking
-        setTimeout(() => clearInterval(checkInterval), 10000);
-      } else {
-        setIsApiLoaded(true);
-      }
-      return;
-    }
-
     const loadApi = async () => {
       try {
         await loadGoogleMapsScript();
@@ -108,10 +138,51 @@ const LocationInput: React.FC<LocationInputProps> = ({ value, onChange, classNam
     }
 
     try {
-      // Initialize autocomplete
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
-        types: ['(cities)'],
-      });
+      // Use the modern PlaceAutocompleteElement if available, fallback to legacy Autocomplete
+      if (window.google.maps.places.PlaceAutocompleteElement) {
+        // Create and configure the new PlaceAutocompleteElement
+        const autocompleteElement = document.createElement('gmp-place-autocomplete');
+        autocompleteElement.setAttribute('type', 'cities');
+
+        // Replace the input with the autocomplete element
+        const parentElement = inputRef.current.parentElement;
+        if (parentElement) {
+          parentElement.insertBefore(autocompleteElement, inputRef.current);
+          inputRef.current.style.display = 'none';
+
+          // Style the autocomplete element to match the input
+          autocompleteElement.style.width = '100%';
+          autocompleteElement.style.height = '100%';
+
+          // Listen for place selection
+          autocompleteElement.addEventListener('gmp-placeselect', (event: any) => {
+            const place = event.place;
+            if (place?.formattedAddress) {
+              onChangeRef.current(place.formattedAddress);
+            }
+          });
+
+          autocompleteElementRef.current = autocompleteElement;
+        }
+      } else {
+        // Fallback to legacy Autocomplete API
+        console.warn('Using deprecated Google Maps Autocomplete API. Consider upgrading to PlaceAutocompleteElement.');
+
+        autocompleteElementRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ['(cities)'],
+        });
+
+        // Add place_changed listener
+        const autocomplete = autocompleteElementRef.current;
+        if (autocomplete) {
+          autocomplete.addListener('place_changed', () => {
+            const place = autocomplete.getPlace();
+            if (place?.formatted_address) {
+              onChangeRef.current(place.formatted_address);
+            }
+          });
+        }
+      }
 
       // Style the autocomplete dropdown
       const style = document.createElement('style');
@@ -157,19 +228,13 @@ const LocationInput: React.FC<LocationInputProps> = ({ value, onChange, classNam
         .pac-icon {
           display: none !important;
         }
+        /* Style for the new PlaceAutocompleteElement */
+        gmp-place-autocomplete {
+          width: 100% !important;
+          --gmp-place-autocomplete-font-family: "DM Sans", sans-serif !important;
+        }
       `;
       document.head.appendChild(style);
-
-      // Add place_changed listener
-      const autocomplete = autocompleteRef.current;
-      if (autocomplete) {
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place?.formatted_address) {
-            onChangeRef.current(place.formatted_address);
-          }
-        });
-      }
 
       isInitializedRef.current = true;
     } catch (error) {
@@ -178,9 +243,18 @@ const LocationInput: React.FC<LocationInputProps> = ({ value, onChange, classNam
 
     // Cleanup
     return () => {
-      if (autocompleteRef.current && window.google?.maps?.event) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
-        autocompleteRef.current = null;
+      if (autocompleteElementRef.current) {
+        if (window.google?.maps?.event && typeof autocompleteElementRef.current.addListener === 'function') {
+          // Legacy Autocomplete cleanup
+          window.google.maps.event.clearInstanceListeners(autocompleteElementRef.current);
+        } else if (autocompleteElementRef.current.remove) {
+          // Modern PlaceAutocompleteElement cleanup
+          autocompleteElementRef.current.remove();
+          if (inputRef.current) {
+            inputRef.current.style.display = '';
+          }
+        }
+        autocompleteElementRef.current = null;
         isInitializedRef.current = false;
       }
     };
@@ -212,4 +286,4 @@ const LocationInput: React.FC<LocationInputProps> = ({ value, onChange, classNam
   );
 };
 
-export default LocationInput; 
+export default LocationInput;

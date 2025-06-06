@@ -161,6 +161,7 @@ chmod +x setup.sh
 - Tavily API密钥
 - Google Gemini API密钥
 - OpenAI API密钥
+- Google Maps API密钥
 - MongoDB URI（可选）
 
 ### 手动安装
@@ -198,7 +199,14 @@ cd ui
 npm install
 ```
 
-4. 创建包含API密钥的`.env`文件：
+4. **设置环境变量**：
+
+此项目需要两个单独的 `.env` 文件用于后端和前端。
+
+**后端配置：**
+
+在项目根目录创建 `.env` 文件并添加您的后端API密钥：
+
 ```env
 TAVILY_API_KEY=your_tavily_key
 GEMINI_API_KEY=your_gemini_key
@@ -206,6 +214,22 @@ OPENAI_API_KEY=your_openai_key
 
 # 可选：启用MongoDB持久化
 # MONGODB_URI=your_mongodb_connection_string
+```
+
+**前端配置：**
+
+在 `ui` 目录内创建 `.env` 文件。您可以先复制示例文件：
+
+```bash
+cp ui/.env.development.example ui/.env
+```
+
+然后，打开 `ui/.env` 并添加您的前端环境变量：
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 ```
 
 ### Docker安装
@@ -218,7 +242,14 @@ git clone https://github.com/pogjester/tavily-company-research.git
 cd tavily-company-research
 ```
 
-2. 创建包含API密钥的`.env`文件：
+2. **设置环境变量**：
+
+Docker 设置使用两个单独的 `.env` 文件。
+
+**后端配置：**
+
+在项目根目录创建 `.env` 文件并添加您的后端API密钥：
+
 ```env
 TAVILY_API_KEY=your_tavily_key
 GEMINI_API_KEY=your_gemini_key
@@ -226,6 +257,22 @@ OPENAI_API_KEY=your_openai_key
 
 # 可选：启用MongoDB持久化
 # MONGODB_URI=your_mongodb_connection_string
+```
+
+**前端配置：**
+
+在 `ui` 目录内创建 `.env` 文件。您可以先复制示例文件：
+
+```bash
+cp ui/.env.development.example ui/.env
+```
+
+然后，打开 `ui/.env` 并添加您的前端环境变量：
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 ```
 
 3. 构建并启动容器：

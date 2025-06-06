@@ -161,6 +161,7 @@ You'll need the following API keys ready:
 - Tavily API Key
 - Google Gemini API Key
 - OpenAI API Key
+- Google Maps API Key
 - MongoDB URI (optional)
 
 ### Manual Setup
@@ -198,7 +199,14 @@ cd ui
 npm install
 ```
 
-4. Create a `.env` file with your API keys:
+4. **Set up Environment Variables**:
+
+This project requires two separate `.env` files for the backend and frontend.
+
+**For the Backend:**
+
+Create a `.env` file in the project's root directory and add your backend API keys:
+
 ```env
 TAVILY_API_KEY=your_tavily_key
 GEMINI_API_KEY=your_gemini_key
@@ -206,6 +214,22 @@ OPENAI_API_KEY=your_openai_key
 
 # Optional: Enable MongoDB persistence
 # MONGODB_URI=your_mongodb_connection_string
+```
+
+**For the Frontend:**
+
+Create a `.env` file inside the `ui` directory. You can copy the example file first:
+
+```bash
+cp ui/.env.development.example ui/.env
+```
+
+Then, open `ui/.env` and add your frontend environment variables:
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 ```
 
 ### Docker Setup
@@ -218,7 +242,14 @@ git clone https://github.com/pogjester/tavily-company-research.git
 cd tavily-company-research
 ```
 
-2. Create a `.env` file with your API keys:
+2. **Set up Environment Variables**:
+
+The Docker setup uses two separate `.env` files.
+
+**For the Backend:**
+
+Create a `.env` file in the project's root directory with your backend API keys:
+
 ```env
 TAVILY_API_KEY=your_tavily_key
 GEMINI_API_KEY=your_gemini_key
@@ -226,6 +257,22 @@ OPENAI_API_KEY=your_openai_key
 
 # Optional: Enable MongoDB persistence
 # MONGODB_URI=your_mongodb_connection_string
+```
+
+**For the Frontend:**
+
+Create a `.env` file inside the `ui` directory. You can copy the example file first:
+
+```bash
+cp ui/.env.development.example ui/.env
+```
+
+Then, open `ui/.env` and add your frontend environment variables:
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 ```
 
 3. Build and start the containers:
