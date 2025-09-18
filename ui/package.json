@@ -18,7 +18,7 @@
     "react-markdown": "^9.0.1",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
-    "serve": "^14.2.1"
+    "serve": "^14.2.5"
   },
   "devDependencies": {
     "@types/google.maps": "^3.58.1",
