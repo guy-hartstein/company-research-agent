@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/071aa491-009b-4d76-a698-88863149e71c
 - **AI驱动的内容过滤**：使用Tavily的相关性评分进行内容筛选
 - **异步处理**：基于轮询的高效架构，用于跟踪研究进度
 - **双模型架构**：
-  - Gemini 3 Flash用于高上下文研究综合
+  - Gemini 2.5 Flash用于高上下文研究综合
   - GPT-5.1用于精确的报告格式化和编辑
 - **现代React前端**：具有进度跟踪和下载选项的响应式UI
 - **模块化架构**：使用专业研究和处理节点构建的管道
@@ -42,7 +42,7 @@ https://github.com/user-attachments/assets/071aa491-009b-4d76-a698-88863149e71c
 2. **处理节点**：
    - `Collector`：汇总所有分析器的研究数据
    - `Curator`：实现内容过滤和相关性评分
-   - `Briefing`：使用Gemini 3 Flash生成特定类别的摘要
+   - `Briefing`：使用Gemini 2.5 Flash生成特定类别的摘要
    - `Editor`：使用GPT-5.1将简报编译和格式化为最终报告
 
    ![web ui](<static/agent-flow.png>)
@@ -51,7 +51,7 @@ https://github.com/user-attachments/assets/071aa491-009b-4d76-a698-88863149e71c
 
 该平台利用不同的模型以获得最佳性能：
 
-1. **Gemini 3 Flash**（`briefing.py`）：
+1. **Gemini 2.5 Flash**（`briefing.py`）：
    - 处理高上下文研究综合任务
    - 擅长处理和总结大量数据
    - 用于生成初始类别简报
