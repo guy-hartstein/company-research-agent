@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 - **Filtrage de contenu par IA** : Utilise le score de pertinence de Tavily pour la curation du contenu
 - **Traitement Asynchrone** : Architecture efficace basée sur le polling pour suivre la progression de la recherche
 - **Architecture à double modèle** :
-  - Gemini 2.5 Flash pour la synthèse de recherche à large contexte
+  - Gemini 3 Flash pour la synthèse de recherche à large contexte
   - GPT-5.1 pour la mise en forme et l'édition précises du rapport
 - **Frontend React moderne** : Interface réactive avec suivi de progression et options de téléchargement
 - **Architecture modulaire** : Construite autour d'un pipeline de nœuds spécialisés de recherche et de traitement
@@ -42,7 +42,7 @@ La plateforme suit un cadre agentique avec des nœuds spécialisés qui traitent
 2. **Nœuds de Traitement** :
    - `Collector` : Agrège les données de recherche de tous les analyseurs
    - `Curator` : Met en œuvre le filtrage de contenu et le scoring de pertinence
-   - `Briefing` : Génère des synthèses par catégorie à l'aide de Gemini 2.5 Flash
+   - `Briefing` : Génère des synthèses par catégorie à l'aide de Gemini 3 Flash
    - `Editor` : Compile et met en forme les synthèses dans un rapport final avec GPT-5.1
 
    ![web ui](<static/agent-flow.png>)
@@ -51,7 +51,7 @@ La plateforme suit un cadre agentique avec des nœuds spécialisés qui traitent
 
 La plateforme exploite des modèles distincts pour des performances optimales :
 
-1. **Gemini 2.5 Flash** (`briefing.py`) :
+1. **Gemini 3 Flash** (`briefing.py`) :
    - Gère la synthèse de recherche à large contexte
    - Excelle dans le traitement et le résumé de grands volumes de données
    - Utilisé pour générer les synthèses initiales par catégorie

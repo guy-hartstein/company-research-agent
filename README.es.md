@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 - **Filtrado de Contenido Impulsado por IA**: Utiliza la puntuación de relevancia de Tavily para la selección de contenido
 - **Procesamiento Asíncrono**: Arquitectura eficiente basada en polling para rastrear el progreso de la investigación
 - **Arquitectura de Modelo Dual**:
-  - Gemini 2.5 Flash para síntesis de investigación de alto contexto
+  - Gemini 3 Flash para síntesis de investigación de alto contexto
   - GPT-5.1 para formato preciso y edición de informes
 - **Frontend Moderno en React**: Interfaz de usuario receptiva con seguimiento de progreso y opciones de descarga
 - **Arquitectura Modular**: Construido utilizando un sistema de nodos de investigación y procesamiento especializados
@@ -41,7 +41,7 @@ La plataforma sigue un marco basado en agentes con nodos especializados que proc
 2. **Nodos de Procesamiento**:
    - `Collector`: Agrega datos de investigación de todos los analizadores
    - `Curator`: Implementa filtrado de contenido y puntuación de relevancia
-   - `Briefing`: Genera resúmenes específicos por categoría utilizando Gemini 2.5 Flash
+   - `Briefing`: Genera resúmenes específicos por categoría utilizando Gemini 3 Flash
    - `Editor`: Compila y formatea los resúmenes en un informe final utilizando GPT-5.1
 
    ![interfaz web](<static/agent-flow.png>)
@@ -50,7 +50,7 @@ La plataforma sigue un marco basado en agentes con nodos especializados que proc
 
 La plataforma aprovecha modelos separados para un rendimiento óptimo:
 
-1. **Gemini 2.5 Flash** (`briefing.py`):
+1. **Gemini 3 Flash** (`briefing.py`):
    - Maneja tareas de síntesis de investigación de alto contexto
    - Sobresale en el procesamiento y resumen de grandes volúmenes de datos
    - Utilizado para generar resúmenes iniciales por categoría

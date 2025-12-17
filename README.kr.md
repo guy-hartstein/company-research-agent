@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 - **AI 콘텐츠 필터링**: Tavily의 관련성 점수를 사용한 콘텐츠 큐레이션
 - **비동기 처리**: 조사 진행 상황을 추적하기 위한 효율적인 폴링 기반 아키텍처
 - **듀얼 모델 아키텍처**:
-  - 대규모 컨텍스트 조사 종합을 위한 Gemini 2.5 Flash
+  - 대규모 컨텍스트 조사 종합을 위한 Gemini 3 Flash
   - 정밀한 보고서 형식 지정 및 편집을 위한 GPT-5.1
 - **모던 React 프론트엔드**: 진행 상황 추적과 다운로드 옵션을 갖춘 반응형 인터페이스
 - **모듈러 아키텍처**: 전문화된 조사 및 처리 노드 파이프라인을 중심으로 구축
@@ -42,7 +42,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 2. **처리 노드**:
    - `Collector`: 모든 분석기에서 조사 데이터 집계
    - `Curator`: 콘텐츠 필터링 및 관련성 점수 매기기 구현
-   - `Briefing`: Gemini 2.5 Flash를 사용하여 카테고리별 요약 생성
+   - `Briefing`: Gemini 3 Flash를 사용하여 카테고리별 요약 생성
    - `Editor`: GPT-5.1로 요약을 최종 보고서로 컴파일 및 형식 지정
 
    ![web ui](<static/agent-flow.png>)
@@ -51,7 +51,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 
 이 플랫폼은 최적의 성능을 위해 서로 다른 모델을 활용합니다:
 
-1. **Gemini 2.5 Flash** (`briefing.py`):
+1. **Gemini 3 Flash** (`briefing.py`):
    - 대규모 컨텍스트 조사 종합 처리
    - 대량의 데이터 처리 및 요약에 뛰어남
    - 카테고리별 초기 요약 생성에 사용
