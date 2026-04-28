@@ -376,3 +376,74 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Tavily](https://tavily.com/) for the research API
 - All other open-source libraries and their contributors
+
+## FAQ
+
+### General
+
+**What is the Company Research Agent?**
+It's a multi-agent tool that generates comprehensive company research reports. The platform uses a pipeline of AI agents to gather, curate, and synthesize information about any company from multiple sources including websites, news articles, financial reports, and industry analyses.
+
+**How does it work?**
+The platform follows an agentic framework with specialized research nodes (CompanyAnalyzer, IndustryAnalyzer, FinancialAnalyst, NewsScanner) that process data sequentially, followed by processing nodes (Collector, Curator, Briefing, Editor) that aggregate, filter, and format the final report.
+
+**Is there a hosted version?**
+Yes, check it out online at https://companyresearcher.tavily.com
+
+### Setup & Configuration
+
+**How do I install the Company Research Agent?**
+Clone the repository and install dependencies: `pip install -r requirements.txt`. You'll need Python 3.10+ and API keys for Tavily (research), Gemini 2.5 Flash (briefing), and GPT-5.1 (editing).
+
+**What API keys are required?**
+You need three API keys:
+- **Tavily API**: For web search and content retrieval
+- **Google Gemini API**: For high-context research synthesis (briefing generation)
+- **OpenAI API**: For precise report formatting and editing
+
+**How do I configure the API keys?**
+Create a `.env` file in the project root with your API keys:
+```
+TAVILY_API_KEY=your_tavily_key
+GOOGLE_API_KEY=your_gemini_key
+OPENAI_API_KEY=your_openai_key
+```
+
+### Agent Architecture
+
+**What models are used and why?**
+The platform uses a dual model architecture:
+- **Gemini 2.5 Flash**: Handles high-context research synthesis tasks, excels at processing large volumes of data and maintaining context across multiple documents
+- **GPT-5.1**: Handles precise report formatting and editing, produces polished final reports
+
+**Can I use different models?**
+Yes, the modular architecture allows swapping models. The briefing node uses Gemini for context-heavy tasks, and the editor node uses GPT for formatting. You can modify `briefing.py` and `editor.py` to use alternative models.
+
+**How many agents run in parallel?**
+The four research nodes (CompanyAnalyzer, IndustryAnalyzer, FinancialAnalyst, NewsScanner) run asynchronously and in parallel, making the research phase efficient.
+
+### Usage
+
+**How long does a research report take?**
+Research time depends on company complexity and data availability. Typical reports take 2-5 minutes, as the four research agents run in parallel.
+
+**What information is included in a report?**
+Reports include core business information, market position and trends, financial metrics and performance data, and recent news and developments — all synthesized into a comprehensive briefing.
+
+**Can I customize the report format?**
+Yes, the Editor node (GPT-5.1) compiles and formats briefings into the final report. You can modify the prompt templates in `editor.py` to customize the output format.
+
+### Troubleshooting
+
+**Research returns empty or incomplete results**
+Verify your Tavily API key is valid and has sufficient quota. Check your internet connection. Some companies with limited online presence may have less data available.
+
+**Gemini API errors during briefing**
+Ensure your Google API key is valid and has Gemini 2.5 Flash enabled. Check that you haven't hit rate limits. Large research contexts may require higher quota tiers.
+
+**GPT-5.1 editing fails**
+Verify your OpenAI API key is valid and has access to GPT-5.1 models. Check rate limits and billing status. If GPT-5.1 is unavailable, you can modify `editor.py` to use an alternative model.
+
+**Need more help?**
+- Open an issue on GitHub for bug reports or feature requests
+- Check the online version at https://companyresearcher.tavily.com for a quick trial
