@@ -376,3 +376,13 @@ npm run dev
 
 - 검색 API를 제공하는 [Tavily](https://tavily.com/)
 - 모든 다른 오픈 소스 라이브러리와 그 기여자들
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=guy-hartstein%2Fcompany-research-agent&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=guy-hartstein/company-research-agent&type=date&theme=dark&legend=bottom-right" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=guy-hartstein/company-research-agent&type=date&legend=bottom-right" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=guy-hartstein/company-research-agent&type=date&legend=bottom-right" />
+ </picture>
+</a>

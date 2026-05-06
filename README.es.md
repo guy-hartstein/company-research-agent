@@ -375,3 +375,13 @@ Este proyecto está licenciado bajo la Licencia MIT - consulta el archivo [LICEN
 
 - [Tavily](https://tavily.com/) por la API de investigación
 - Todas las demás bibliotecas de código abierto y sus contribuyentes
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=guy-hartstein%2Fcompany-research-agent&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=guy-hartstein/company-research-agent&type=date&theme=dark&legend=bottom-right" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=guy-hartstein/company-research-agent&type=date&legend=bottom-right" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=guy-hartstein/company-research-agent&type=date&legend=bottom-right" />
+ </picture>
+</a>
