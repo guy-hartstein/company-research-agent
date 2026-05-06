@@ -8,4 +8,4 @@ pymongo==4.17.0
 reportlab==4.5.0
 tavily-python==0.7.24
 uvicorn[standard]==0.38.0
-python-dotenv==1.2.1
+python-dotenv==1.2.2
