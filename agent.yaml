@@ -1,0 +1,35 @@
+spec_version: "0.1.0"
+name: company-research-agent
+version: 1.0.0
+description: >
+  A multi-agent company research platform built on LangGraph and Tavily. Given a
+  company name, URL, HQ location, and industry, it dispatches four parallel
+  specialist agents (CompanyAnalyzer, IndustryAnalyzer, FinancialAnalyst,
+  NewsScanner) to gather data from the web, then passes results through a
+  Curator and Enricher before generating category briefings (Gemini 2.5 Flash)
+  and compiling a polished final report (GPT-5.1). Output is a structured
+  markdown report covering Company Overview, Industry Overview, Financial
+  Overview, and News — streamable via a FastAPI backend and React frontend.
+license: Apache-2.0
+model:
+  preferred: google:gemini-2.5-flash
+  alternatives:
+    - openai:gpt-4.1
+runtime:
+  max_turns: 50
+  entrypoint: langgraph_entry.py:graph
+skills:
+  - name: company-analysis
+    description: Researches core business information — products, leadership, target market, business model, and key differentiators for a given company.
+  - name: industry-analysis
+    description: Analyzes market position, direct competitors, competitive advantages, and sector challenges relevant to the company.
+  - name: financial-research
+    description: Gathers funding history, investor details, revenue model, and financial metrics from public sources.
+  - name: news-scanning
+    description: Collects recent news, press releases, partnerships, product launches, and recognition events.
+  - name: report-editing
+    description: Synthesizes all research briefings into a cohesive, deduplicated, and well-formatted markdown report.
+compliance:
+  risk_tier: standard
+  supervision:
+    human_in_the_loop: none
