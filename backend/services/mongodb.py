@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 import certifi
@@ -24,8 +24,8 @@ class MongoDBService:
             "job_id": job_id,
             "inputs": inputs,
             "status": "pending",
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
         })
 
     def update_job(self, job_id: str, 
@@ -33,7 +33,7 @@ class MongoDBService:
                   result: Dict[str, Any] = None,
                   error: str = None) -> None:
         """Update a research job with results or status."""
-        update_data = {"updated_at": datetime.utcnow()}
+        update_data = {"updated_at": datetime.now(timezone.utc)}
         if status:
             update_data["status"] = status
         if result:
@@ -58,7 +58,7 @@ class MongoDBService:
             "references": report_data.get("references", []),
             "sections": report_data.get("sections_completed", []),
             "analyst_queries": report_data.get("analyst_queries", {}),
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc)
         })
 
     def get_report(self, job_id: str) -> Optional[Dict[str, Any]]:
